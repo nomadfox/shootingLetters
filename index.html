@@ -571,8 +571,11 @@
     /* ==========================================================================
        GAME MECHANICS: SPAWNING, TYPING, PARTICLES & ENERGY BOLTS
        ========================================================================== */
+    let nextLetterId = 1;
+
     class FallingLetter {
       constructor() {
+        this.id = nextLetterId++;
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         this.char = alphabet[Math.floor(Math.random() * alphabet.length)];
         this.x = 60 + Math.random() * (width - 120);
@@ -581,6 +584,7 @@
         this.radius = 24;
         this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff0055';
         this.glow = 15;
+        this.targeted = false; // Lock-on status
       }
 
       update() {
@@ -593,12 +597,23 @@
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(12, 16, 32, 0.85)';
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 3;
-        ctx.shadowColor = this.color;
+        ctx.strokeStyle = this.targeted ? '#ffe600' : this.color;
+        ctx.lineWidth = this.targeted ? 4 : 3;
+        ctx.shadowColor = this.targeted ? '#ffe600' : this.color;
         ctx.shadowBlur = this.glow;
         ctx.fill();
         ctx.stroke();
+
+        // Lock-on crosshair if targeted
+        if (this.targeted) {
+          ctx.strokeStyle = '#ffe600';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = '#ffe600';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
 
         // Letter text inside orb
         ctx.font = 'bold 22px "Courier New", monospace';
@@ -613,31 +628,36 @@
     }
 
     class EnergyBolt {
-      constructor(startX, startY, targetX, targetY, letterChar) {
+      constructor(startX, startY, targetLetter) {
         this.startX = startX;
         this.startY = startY;
         this.x = startX;
         this.y = startY;
-        this.targetX = targetX;
-        this.targetY = targetY;
-        this.letterChar = letterChar;
-        this.speed = 18;
+        this.targetLetter = targetLetter;
+        this.targetX = targetLetter.x;
+        this.targetY = targetLetter.y;
+        this.speed = 22;
         this.reached = false;
-
-        const dx = targetX - startX;
-        const dy = targetY - startY;
-        const dist = Math.hypot(dx, dy);
-        this.vx = (dx / dist) * this.speed;
-        this.vy = (dy / dist) * this.speed;
       }
 
       update() {
-        this.x += this.vx;
-        this.y += this.vy;
+        // Continuously home in on moving letter
+        if (this.targetLetter) {
+          this.targetX = this.targetLetter.x;
+          this.targetY = this.targetLetter.y;
+        }
 
-        const distToTarget = Math.hypot(this.targetX - this.x, this.targetY - this.y);
-        if (distToTarget < this.speed) {
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist <= this.speed) {
+          this.x = this.targetX;
+          this.y = this.targetY;
           this.reached = true;
+        } else {
+          this.x += (dx / dist) * this.speed;
+          this.y += (dy / dist) * this.speed;
         }
       }
 
@@ -771,12 +791,12 @@
 
       const key = e.key.toUpperCase();
       if (key >= 'A' && key <= 'Z' && key.length === 1) {
-        // Find lowest target matching letter
+        // Find lowest non-targeted matching letter
         let lowestLetter = null;
         let lowestY = -Infinity;
 
         for (const item of fallingLetters) {
-          if (item.char === key && item.y > lowestY) {
+          if (!item.targeted && item.char === key && item.y > lowestY) {
             lowestY = item.y;
             lowestLetter = item;
           }
@@ -784,14 +804,14 @@
 
         if (lowestLetter) {
           sound.playLaser();
+          // Mark letter as targeted so it isn't double-targeted
+          lowestLetter.targeted = true;
+
           // Fire energy bolt from bottom center ground cannon
           const cannonX = width / 2;
           const cannonY = height - 70;
 
-          energyBolts.push(new EnergyBolt(cannonX, cannonY, lowestLetter.x, lowestLetter.y, key));
-
-          // Remove target from active falling letters (target locked)
-          fallingLetters = fallingLetters.filter(l => l !== lowestLetter);
+          energyBolts.push(new EnergyBolt(cannonX, cannonY, lowestLetter));
 
           // Update streak & score multiplier
           streak++;
@@ -976,6 +996,15 @@
 
           if (bolt.reached) {
             createExplosion(bolt.targetX, bolt.targetY, '#00f3ff');
+
+            // Remove the targeted letter upon laser impact
+            if (bolt.targetLetter) {
+              const index = fallingLetters.indexOf(bolt.targetLetter);
+              if (index !== -1) {
+                fallingLetters.splice(index, 1);
+              }
+            }
+
             energyBolts.splice(i, 1);
           }
         }
