@@ -626,6 +626,8 @@
     } else {
       currentBoss = null;
     }
+
+    sound.updateBGMForLevel(currentLevel, isBossLevel);
   }
 
   function advanceLevel() {
@@ -910,12 +912,14 @@
 
   function pauseGame() {
     gameState = 'PAUSED';
+    sound.stopBGM();
     pauseMenu.classList.remove('hidden');
   }
 
   function resumeGame() {
     pauseMenu.classList.add('hidden');
     gameState = 'PLAYING';
+    sound.updateBGMForLevel(currentLevel, isBossLevel);
   }
 
   function gameOver() {
