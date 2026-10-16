@@ -601,7 +601,7 @@
 
     // Check Level Complete condition (for normal non-boss levels)
     if (!isBossLevel) {
-      const quota = config.levelQuota(currentLevel);
+      const quota = config.levelQuota(currentLevel, currentDiffKey);
       if (levelDestroyedCount >= quota) {
         startLevelTransition();
       }
@@ -794,7 +794,7 @@
       } else {
         // Normal Letter Spawning ONLY on non-boss levels
         if (!isBossLevel) {
-          const quota = config.levelQuota(currentLevel);
+          const quota = config.levelQuota(currentLevel, currentDiffKey);
           if (levelDestroyedCount < quota) {
             spawnTimer++;
             if (spawnTimer >= currentInterval) {
@@ -946,7 +946,7 @@
       const total = currentBoss ? currentBoss.phrase.length : 0;
       progressDisplay.textContent = `BOSS (${total - rem}/${total})`;
     } else {
-      const quota = config.levelQuota(currentLevel);
+      const quota = config.levelQuota(currentLevel, currentDiffKey);
       progressDisplay.textContent = `${levelDestroyedCount}/${quota}`;
     }
 

@@ -46,14 +46,21 @@ window.GAME_CONFIG = {
 
   // Difficulty settings
   difficulties: {
+    baby: { name: "Baby Mode (Super Easy)", baseSpeed: 0.45, spawnInterval: 200, damage: 4 },
     easy: { name: "Easy", baseSpeed: 0.9, spawnInterval: 140, damage: 8 },
     medium: { name: "Medium", baseSpeed: 1.3, spawnInterval: 110, damage: 12 },
     hard: { name: "Hard (Nightmare)", baseSpeed: 1.8, spawnInterval: 80, damage: 18 }
   },
 
   // Level Progression Quotas (Quota increases per level)
-  // Level 1: 15 letters, Level 2: 25 letters, Level 3: 35 letters, etc.
-  levelQuota: function(level) {
+  levelQuota: function(level, diffKey = "medium") {
+    if (diffKey === "baby") {
+      let q = 5;
+      for (let i = 2; i <= level; i++) {
+        q = Math.floor(q * 1.5);
+      }
+      return q;
+    }
     return 15 + (level - 1) * 10;
   },
 
