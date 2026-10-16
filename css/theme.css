@@ -1,0 +1,72 @@
+/* Color Themes & Style Presets */
+:root {
+  /* Default Theme: Cyberpunk */
+  --bg-color: #080811;
+  --bg-gradient: radial-gradient(circle at center, #1a0b2e 0%, #080811 100%);
+  --primary-cyan: #00f3ff;
+  --primary-pink: #ff0055;
+  --primary-yellow: #ffe600;
+  --primary-green: #00ff66;
+  --glass-bg: rgba(12, 16, 32, 0.88);
+  --font-family: 'Segoe UI', Courier, monospace, sans-serif;
+  --grid-color: rgba(0, 243, 255, 0.25);
+  --building-bg: #0c0f24;
+  --building-border: rgba(0, 243, 255, 0.5);
+  --sun-top: #ffe600;
+  --sun-mid: #ff0055;
+  --sun-bottom: #7a00ff;
+}
+
+/* Theme: Matrix Green */
+body[data-theme="matrix"] {
+  --bg-color: #020d05;
+  --bg-gradient: radial-gradient(circle at center, #05200c 0%, #020d05 100%);
+  --primary-cyan: #00ff66;
+  --primary-pink: #00aa33;
+  --primary-yellow: #ccff00;
+  --primary-green: #00ff66;
+  --glass-bg: rgba(4, 24, 10, 0.9);
+  --font-family: 'Courier New', monospace;
+  --grid-color: rgba(0, 255, 102, 0.25);
+  --building-bg: #041a0b;
+  --building-border: rgba(0, 255, 102, 0.5);
+  --sun-top: #ccff00;
+  --sun-mid: #00ff66;
+  --sun-bottom: #004411;
+}
+
+/* Theme: Retro Synthwave */
+body[data-theme="synthwave"] {
+  --bg-color: #120420;
+  --bg-gradient: radial-gradient(circle at center, #2e0840 0%, #120420 100%);
+  --primary-cyan: #ff007f;
+  --primary-pink: #7928ca;
+  --primary-yellow: #ff00d4;
+  --primary-green: #00f3ff;
+  --glass-bg: rgba(28, 6, 48, 0.88);
+  --font-family: 'Segoe UI', sans-serif;
+  --grid-color: rgba(255, 0, 212, 0.3);
+  --building-bg: #1c082b;
+  --building-border: rgba(255, 0, 127, 0.5);
+  --sun-top: #ff00d4;
+  --sun-mid: #ff007f;
+  --sun-bottom: #2e0840;
+}
+
+/* Theme: Classic Arcade Red */
+body[data-theme="arcade"] {
+  --bg-color: #100505;
+  --bg-gradient: radial-gradient(circle at center, #2b0a0a 0%, #100505 100%);
+  --primary-cyan: #ff3300;
+  --primary-pink: #ff9900;
+  --primary-yellow: #ffff00;
+  --primary-green: #00ff66;
+  --glass-bg: rgba(30, 10, 10, 0.9);
+  --font-family: 'Courier New', monospace;
+  --grid-color: rgba(255, 51, 0, 0.25);
+  --building-bg: #1f0b0b;
+  --building-border: rgba(255, 51, 0, 0.5);
+  --sun-top: #ffff00;
+  --sun-mid: #ff9900;
+  --sun-bottom: #ff3300;
+}
