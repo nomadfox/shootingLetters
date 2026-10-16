@@ -4,271 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CYBER-DEFENDER // TYPE OR DIE</title>
-  <style>
-    :root {
-      --bg-color: #080811;
-      --primary-cyan: #00f3ff;
-      --primary-pink: #ff0055;
-      --primary-yellow: #ffe600;
-      --primary-green: #00ff66;
-      --glass-bg: rgba(12, 16, 32, 0.85);
-      --font-family: 'Segoe UI', Courier, monospace, sans-serif;
-    }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-    }
-
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: var(--bg-color);
-      font-family: var(--font-family);
-      color: #fff;
-    }
-
-    #game-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle at center, #1a0b2e 0%, #080811 100%);
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-    }
-
-    /* Scanline effect */
-    .scanlines {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%,
-        rgba(0, 0, 0, 0.25) 50%
-      );
-      background-size: 100% 4px;
-      z-index: 10;
-    }
-
-    /* Vignette */
-    .vignette {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
-      z-index: 11;
-    }
-
-    /* UI Overlays */
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(8, 8, 17, 0.88);
-      backdrop-filter: blur(8px);
-      z-index: 20;
-      transition: opacity 0.3s ease;
-    }
-
-    .hidden {
-      display: none !important;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .panel {
-      background: var(--glass-bg);
-      border: 2px solid var(--primary-cyan);
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.3), inset 0 0 15px rgba(0, 243, 255, 0.1);
-      border-radius: 8px;
-      padding: 40px 50px;
-      text-align: center;
-      max-width: 550px;
-      width: 90%;
-      animation: panelPulse 4s infinite alternate;
-    }
-
-    @keyframes panelPulse {
-      0% { border-color: var(--primary-cyan); box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
-      50% { border-color: var(--primary-pink); box-shadow: 0 0 25px rgba(255, 0, 85, 0.3); }
-      100% { border-color: var(--primary-cyan); box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
-    }
-
-    h1 {
-      font-size: 2.8rem;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      margin-bottom: 15px;
-      color: #fff;
-      text-shadow: 0 0 10px var(--primary-cyan), 0 0 20px var(--primary-cyan);
-    }
-
-    h2 {
-      font-size: 2rem;
-      color: var(--primary-pink);
-      text-shadow: 0 0 10px var(--primary-pink);
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      color: #c0c5e0;
-      margin-bottom: 25px;
-    }
-
-    .btn {
-      background: transparent;
-      color: var(--primary-cyan);
-      border: 2px solid var(--primary-cyan);
-      padding: 14px 36px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-      outline: none;
-    }
-
-    .btn:hover {
-      background: var(--primary-cyan);
-      color: #000;
-      box-shadow: 0 0 25px var(--primary-cyan);
-      transform: translateY(-2px);
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    /* HUD Header bar */
-    #hud {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 15;
-      pointer-events: none;
-    }
-
-    .hud-box {
-      background: var(--glass-bg);
-      border: 1px solid rgba(0, 243, 255, 0.4);
-      padding: 10px 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    }
-
-    .hud-label {
-      font-size: 0.75rem;
-      color: var(--primary-cyan);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 4px;
-    }
-
-    .hud-value {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 0 8px var(--primary-cyan);
-    }
-
-    /* Health bar */
-    .health-container {
-      width: 250px;
-    }
-
-    .health-bar-outer {
-      width: 100%;
-      height: 18px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--primary-pink);
-      border-radius: 3px;
-      overflow: hidden;
-      padding: 2px;
-    }
-
-    .health-bar-inner {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, var(--primary-pink), var(--primary-yellow), var(--primary-green));
-      border-radius: 2px;
-      transition: width 0.3s ease-out, background 0.3s;
-      box-shadow: 0 0 10px var(--primary-pink);
-    }
-
-    /* Audio toggle button */
-    #audio-toggle {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      z-index: 15;
-      background: var(--glass-bg);
-      border: 1px solid var(--primary-cyan);
-      color: var(--primary-cyan);
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
-    #audio-toggle:hover {
-      background: var(--primary-cyan);
-      color: #000;
-    }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px 0;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 15px;
-      border-radius: 6px;
-    }
-
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .stat-num {
-      font-size: 1.5rem;
-      color: var(--primary-cyan);
-      font-weight: bold;
-    }
-  </style>
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -278,11 +17,16 @@
 
     <canvas id="gameCanvas"></canvas>
 
-    <!-- HUD -->
+    <!-- HUD Header Bar -->
     <div id="hud">
       <div class="hud-box">
         <div class="hud-label">Score</div>
         <div id="score-display" class="hud-value">00000</div>
+      </div>
+
+      <div class="hud-box">
+        <div class="hud-label">High Score</div>
+        <div id="high-score-display" class="hud-value">00000</div>
       </div>
 
       <div class="hud-box">
@@ -303,18 +47,79 @@
       </div>
     </div>
 
-    <button id="audio-toggle">🔊 Audio: ON</button>
+    <!-- Bottom Controls -->
+    <div id="bottom-controls">
+      <button id="pause-btn" class="hud-btn">⏸ Pause (ESC)</button>
+      <button id="audio-toggle" class="hud-btn">🔊 Audio: ON</button>
+    </div>
 
     <!-- Start Menu Overlay -->
     <div id="start-menu" class="overlay">
       <div class="panel">
         <h1>CYBER DEFENDER</h1>
-        <p>Alien encryption keys are falling onto the city neon skyline! Type the corresponding keyboard letters (A-Z) to fire plasma cannons and destroy them before impact.</p>
-        <button id="start-btn" class="btn">INITIALIZE DEFENSES</button>
+        <p>Alien encryption keys are falling onto the city neon skyline! Type the matching keys to fire plasma cannons before impact.</p>
+        <div class="button-group">
+          <button id="start-btn" class="btn">INITIALIZE DEFENSES</button>
+          <button id="open-settings-btn" class="btn btn-secondary">CONFIG / THEMES</button>
+        </div>
       </div>
     </div>
 
-    <!-- Game Over Overlay -->
+    <!-- Settings Menu Overlay -->
+    <div id="settings-menu" class="overlay hidden">
+      <div class="panel">
+        <h2>SYSTEM CONFIGURATION</h2>
+
+        <div class="settings-group">
+          <label for="theme-select">Visual Theme Preset</label>
+          <select id="theme-select" class="settings-control">
+            <option value="cyberpunk">Cyberpunk Neon (Default)</option>
+            <option value="matrix">Matrix Green</option>
+            <option value="synthwave">Retro Synthwave</option>
+            <option value="arcade">Classic Arcade Red</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label for="difficulty-select">Difficulty Curve</label>
+          <select id="difficulty-select" class="settings-control">
+            <option value="easy">Easy (Casual Defense)</option>
+            <option value="medium" selected>Medium (Standard Speed)</option>
+            <option value="hard">Hard (Nightmare Swarm)</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label for="charset-select">Target Key Set</label>
+          <select id="charset-select" class="settings-control">
+            <option value="alpha">Letters Only (A-Z)</option>
+            <option value="alphanumeric">Alphanumeric (A-Z + 0-9)</option>
+            <option value="symbols">Full Encryption (Letters, Numbers & Symbols)</option>
+          </select>
+        </div>
+
+        <div class="settings-group">
+          <label for="volume-slider">Audio Volume</label>
+          <input type="range" id="volume-slider" class="settings-control" min="0" max="1" step="0.05" value="0.8">
+        </div>
+
+        <button id="close-settings-btn" class="btn" style="margin-top: 15px;">SAVE & CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Pause Menu Overlay -->
+    <div id="pause-menu" class="overlay hidden">
+      <div class="panel">
+        <h2>DEFENSE PAUSED</h2>
+        <p>Tactical pause active. City grid simulation suspended.</p>
+        <div class="button-group">
+          <button id="resume-btn" class="btn">RESUME DEFENSE</button>
+          <button id="menu-btn" class="btn btn-secondary">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Menu Overlay -->
     <div id="game-over-menu" class="overlay hidden">
       <div class="panel">
         <h2>DEFENSES BREACHED</h2>
@@ -326,7 +131,7 @@
             <span id="final-score" class="stat-num">0</span>
           </div>
           <div class="stat-item">
-            <span style="font-size: 0.8rem; color: #aaa;">LETTERS DESTROYED</span>
+            <span style="font-size: 0.8rem; color: #aaa;">DESTROYED</span>
             <span id="final-destroyed" class="stat-num">0</span>
           </div>
           <div class="stat-item">
@@ -340,764 +145,9 @@
     </div>
   </div>
 
-  <script>
-    /* ==========================================================================
-       AUDIO SYNTHESIZER (WEB AUDIO API)
-       ========================================================================== */
-    class SoundEngine {
-      constructor() {
-        this.ctx = null;
-        this.muted = false;
-      }
-
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) {
-            this.ctx = new AudioContext();
-          }
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
-      }
-
-      toggleMute() {
-        this.muted = !this.muted;
-        return !this.muted;
-      }
-
-      playLaser() {
-        if (this.muted || !this.ctx) return;
-        this.init();
-
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-
-        osc.type = 'sawtooth';
-        const now = this.ctx.currentTime;
-
-        osc.frequency.setValueAtTime(900, now);
-        osc.frequency.exponentialRampToValueAtTime(150, now + 0.12);
-
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.12);
-      }
-
-      playExplosion() {
-        if (this.muted || !this.ctx) return;
-        this.init();
-
-        const now = this.ctx.currentTime;
-        const duration = 0.35;
-
-        const bufferSize = this.ctx.sampleRate * duration;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const output = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
-
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(800, now);
-        filter.frequency.exponentialRampToValueAtTime(80, now + duration);
-
-        const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.35, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        noise.start(now);
-        noise.stop(now + duration);
-      }
-
-      playCityHit() {
-        if (this.muted || !this.ctx) return;
-        this.init();
-
-        const now = this.ctx.currentTime;
-        const duration = 0.45;
-
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAtTime(30, now + duration);
-
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + duration);
-      }
-
-      playGameOver() {
-        if (this.muted || !this.ctx) return;
-        this.init();
-
-        const notes = [220, 207.65, 196, 185];
-        notes.forEach((freq, index) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-
-          const now = this.ctx.currentTime + index * 0.18;
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, now);
-
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-
-          osc.start(now);
-          osc.stop(now + 0.25);
-        });
-      }
-    }
-
-    const sound = new SoundEngine();
-
-    /* ==========================================================================
-       CANVAS & GAME SETUP
-       ========================================================================== */
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // UI elements
-    const startMenu = document.getElementById('start-menu');
-    const gameOverMenu = document.getElementById('game-over-menu');
-    const startBtn = document.getElementById('start-btn');
-    const restartBtn = document.getElementById('restart-btn');
-    const audioToggle = document.getElementById('audio-toggle');
-
-    const scoreDisplay = document.getElementById('score-display');
-    const levelDisplay = document.getElementById('level-display');
-    const multiplierDisplay = document.getElementById('multiplier-display');
-    const healthBar = document.getElementById('health-bar');
-
-    const finalScoreEl = document.getElementById('final-score');
-    const finalDestroyedEl = document.getElementById('final-destroyed');
-    const finalStreakEl = document.getElementById('final-streak');
-
-    let width, height;
-    function resizeCanvas() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      initBuildings();
-    }
-    window.addEventListener('resize', resizeCanvas);
-
-    // Game state variables
-    let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
-    let score = 0;
-    let health = 100;
-    let level = 1;
-    let streak = 0;
-    let maxStreak = 0;
-    let destroyedCount = 0;
-    let gridOffset = 0;
-
-    // Entities
-    let fallingLetters = [];
-    let energyBolts = [];
-    let particles = [];
-    let smokeParticles = [];
-
-    let spawnTimer = 0;
-    let spawnInterval = 120; // Frames between spawns
-    let baseSpeed = 1.2;
-
-    // City skyline representation
-    let buildings = [];
-    const buildingWidth = 60;
-
-    function initBuildings() {
-      buildings = [];
-      const numBuildings = Math.ceil(width / buildingWidth) + 1;
-      const groundY = height - 70;
-
-      for (let i = 0; i < numBuildings; i++) {
-        const bHeight = 80 + Math.random() * 140;
-        buildings.push({
-          x: i * buildingWidth,
-          width: buildingWidth - 4,
-          height: bHeight,
-          y: groundY - bHeight,
-          damaged: false,
-          damageRatio: 0, // 0 to 1
-          craters: [],
-          windows: generateWindows(buildingWidth - 4, bHeight)
-        });
-      }
-    }
-
-    function generateWindows(bWidth, bHeight) {
-      const windows = [];
-      const rows = Math.floor(bHeight / 20);
-      const cols = Math.floor(bWidth / 15);
-      for (let r = 1; r < rows - 1; r++) {
-        for (let c = 1; c < cols; c++) {
-          if (Math.random() > 0.3) {
-            windows.push({
-              x: c * 12,
-              y: r * 18,
-              active: true,
-              color: Math.random() > 0.5 ? '#00f3ff' : '#ffe600'
-            });
-          }
-        }
-      }
-      return windows;
-    }
-
-    /* ==========================================================================
-       GAME MECHANICS: SPAWNING, TYPING, PARTICLES & ENERGY BOLTS
-       ========================================================================== */
-    let nextLetterId = 1;
-
-    class FallingLetter {
-      constructor() {
-        this.id = nextLetterId++;
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        this.char = alphabet[Math.floor(Math.random() * alphabet.length)];
-        this.x = 60 + Math.random() * (width - 120);
-        this.y = -30;
-        this.speed = baseSpeed + (level - 1) * 0.25 + Math.random() * 0.5;
-        this.radius = 24;
-        this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff0055';
-        this.glow = 15;
-        this.targeted = false; // Lock-on status
-      }
-
-      update() {
-        this.y += this.speed;
-      }
-
-      draw() {
-        ctx.save();
-        // Outer glowing orb
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(12, 16, 32, 0.85)';
-        ctx.strokeStyle = this.targeted ? '#ffe600' : this.color;
-        ctx.lineWidth = this.targeted ? 4 : 3;
-        ctx.shadowColor = this.targeted ? '#ffe600' : this.color;
-        ctx.shadowBlur = this.glow;
-        ctx.fill();
-        ctx.stroke();
-
-        // Lock-on crosshair if targeted
-        if (this.targeted) {
-          ctx.strokeStyle = '#ffe600';
-          ctx.lineWidth = 2;
-          ctx.shadowColor = '#ffe600';
-          ctx.shadowBlur = 10;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // Letter text inside orb
-        ctx.font = 'bold 22px "Courier New", monospace';
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 5;
-        ctx.fillText(this.char, this.x, this.y + 2);
-        ctx.restore();
-      }
-    }
-
-    class EnergyBolt {
-      constructor(startX, startY, targetLetter) {
-        this.startX = startX;
-        this.startY = startY;
-        this.x = startX;
-        this.y = startY;
-        this.targetLetter = targetLetter;
-        this.targetX = targetLetter.x;
-        this.targetY = targetLetter.y;
-        this.speed = 22;
-        this.reached = false;
-      }
-
-      update() {
-        // Continuously home in on moving letter
-        if (this.targetLetter) {
-          this.targetX = this.targetLetter.x;
-          this.targetY = this.targetLetter.y;
-        }
-
-        const dx = this.targetX - this.x;
-        const dy = this.targetY - this.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist <= this.speed) {
-          this.x = this.targetX;
-          this.y = this.targetY;
-          this.reached = true;
-        } else {
-          this.x += (dx / dist) * this.speed;
-          this.y += (dy / dist) * this.speed;
-        }
-      }
-
-      draw() {
-        ctx.save();
-        // Laser trail
-        ctx.beginPath();
-        ctx.moveTo(this.startX, this.startY);
-        ctx.lineTo(this.x, this.y);
-        ctx.strokeStyle = '#00f3ff';
-        ctx.lineWidth = 4;
-        ctx.shadowColor = '#00f3ff';
-        ctx.shadowBlur = 15;
-        ctx.stroke();
-
-        // Glowing bolt tip
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#00f3ff';
-        ctx.shadowBlur = 20;
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    class Particle {
-      constructor(x, y, color) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 8;
-        this.vy = (Math.random() - 0.5) * 8;
-        this.radius = 2 + Math.random() * 3;
-        this.color = color;
-        this.life = 1;
-        this.decay = 0.02 + Math.random() * 0.03;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= this.decay;
-      }
-
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life);
-        ctx.fillStyle = this.color;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    class SmokeParticle {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 1.5;
-        this.vy = -Math.random() * 1.5 - 0.5;
-        this.radius = 4 + Math.random() * 6;
-        this.life = 1;
-        this.decay = 0.01 + Math.random() * 0.015;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.radius += 0.1;
-        this.life -= this.decay;
-      }
-
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life * 0.5);
-        ctx.fillStyle = '#ff3366';
-        ctx.shadowColor = '#ff0055';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    function createExplosion(x, y, color) {
-      sound.playExplosion();
-      for (let i = 0; i < 25; i++) {
-        particles.push(new Particle(x, y, color));
-      }
-    }
-
-    function damageCity(letterX, groundY) {
-      sound.playCityHit();
-      health -= 12;
-      streak = 0;
-      updateHUD();
-
-      // Find building directly underneath
-      const bIndex = Math.floor(letterX / buildingWidth);
-      if (buildings[bIndex]) {
-        const b = buildings[bIndex];
-        b.damaged = true;
-        b.damageRatio = Math.min(1, b.damageRatio + 0.35);
-
-        // Add smoking crater on building top
-        b.craters.push({
-          x: letterX - b.x,
-          y: 0,
-          radius: 12 + Math.random() * 8
-        });
-
-        // Spawn ground explosion debris & smoke
-        for (let i = 0; i < 15; i++) {
-          smokeParticles.push(new SmokeParticle(letterX, groundY));
-          particles.push(new Particle(letterX, groundY, '#ff0055'));
-        }
-      }
-
-      if (health <= 0) {
-        gameOver();
-      }
-    }
-
-    // Keydown Listener
-    window.addEventListener('keydown', (e) => {
-      if (gameState !== 'PLAYING') return;
-
-      const key = e.key.toUpperCase();
-      if (key >= 'A' && key <= 'Z' && key.length === 1) {
-        // Find lowest non-targeted matching letter
-        let lowestLetter = null;
-        let lowestY = -Infinity;
-
-        for (const item of fallingLetters) {
-          if (!item.targeted && item.char === key && item.y > lowestY) {
-            lowestY = item.y;
-            lowestLetter = item;
-          }
-        }
-
-        if (lowestLetter) {
-          sound.playLaser();
-          // Mark letter as targeted so it isn't double-targeted
-          lowestLetter.targeted = true;
-
-          // Fire energy bolt from bottom center ground cannon
-          const cannonX = width / 2;
-          const cannonY = height - 70;
-
-          energyBolts.push(new EnergyBolt(cannonX, cannonY, lowestLetter));
-
-          // Update streak & score multiplier
-          streak++;
-          if (streak > maxStreak) maxStreak = streak;
-          destroyedCount++;
-
-          const multiplier = Math.min(5, 1 + Math.floor(streak / 5));
-          score += 100 * multiplier;
-
-          // Progressive difficulty increase every 10 letters destroyed
-          level = 1 + Math.floor(destroyedCount / 10);
-          spawnInterval = Math.max(35, 120 - (level - 1) * 12);
-
-          updateHUD();
-        } else {
-          // Missed key press resets streak
-          streak = 0;
-          updateHUD();
-        }
-      }
-    });
-
-    /* ==========================================================================
-       BACKGROUND & CITY RENDERING
-       ========================================================================== */
-    function drawBackground() {
-      // Dark cyber gradient background
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-      bgGrad.addColorStop(0, '#060612');
-      bgGrad.addColorStop(0.6, '#180a2b');
-      bgGrad.addColorStop(1, '#05030a');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // Distant retro sun/horizon
-      const horizonY = height - 120;
-      const sunRadius = 90;
-      const sunGrad = ctx.createLinearGradient(width / 2, horizonY - sunRadius, width / 2, horizonY);
-      sunGrad.addColorStop(0, '#ffe600');
-      sunGrad.addColorStop(0.5, '#ff0055');
-      sunGrad.addColorStop(1, '#7a00ff');
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(width / 2, horizonY, sunRadius, Math.PI, 0, false);
-      ctx.fillStyle = sunGrad;
-      ctx.shadowBlur = 30;
-      ctx.shadowColor = '#ff0055';
-      ctx.fill();
-      ctx.restore();
-
-      // Synthwave Perspective Grid
-      ctx.save();
-      ctx.strokeStyle = 'rgba(0, 243, 255, 0.25)';
-      ctx.lineWidth = 1.5;
-
-      gridOffset = (gridOffset + 0.8) % 20;
-
-      // Horizontal lines with perspective spacing
-      for (let y = horizonY; y <= height; y += 15) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      // Vanishing point perspective lines
-      const vanishingX = width / 2;
-      const totalPerspectiveLines = 24;
-      for (let i = -totalPerspectiveLines; i <= totalPerspectiveLines; i++) {
-        const targetX = vanishingX + i * 80;
-        ctx.beginPath();
-        ctx.moveTo(vanishingX, horizonY);
-        ctx.lineTo(targetX, height);
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    function drawCitySkyline() {
-      const groundY = height - 70;
-
-      buildings.forEach(b => {
-        // Draw building body
-        ctx.save();
-        ctx.fillStyle = b.damaged ? '#141428' : '#0c0f24';
-        ctx.strokeStyle = b.damaged ? 'rgba(255, 0, 85, 0.6)' : 'rgba(0, 243, 255, 0.5)';
-        ctx.lineWidth = 2;
-
-        const effectiveHeight = b.height * (1 - b.damageRatio * 0.6);
-        const effectiveY = groundY - effectiveHeight;
-
-        ctx.fillRect(b.x, effectiveY, b.width, effectiveHeight);
-        ctx.strokeRect(b.x, effectiveY, b.width, effectiveHeight);
-
-        // Draw windows
-        b.windows.forEach(w => {
-          if (w.active && w.y < effectiveHeight - 10) {
-            ctx.fillStyle = b.damaged ? 'rgba(255, 0, 85, 0.4)' : w.color;
-            ctx.shadowColor = w.color;
-            ctx.shadowBlur = b.damaged ? 0 : 5;
-            ctx.fillRect(b.x + w.x, effectiveY + w.y, 6, 8);
-          }
-        });
-
-        // Draw building craters / rubble if damaged
-        if (b.craters.length > 0) {
-          b.craters.forEach(c => {
-            ctx.fillStyle = '#ff0055';
-            ctx.shadowColor = '#ff0055';
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(b.x + c.x, effectiveY + c.y, c.radius, 0, Math.PI * 2);
-            ctx.fill();
-          });
-        }
-
-        ctx.restore();
-      });
-
-      // Cannon Base at bottom center
-      ctx.save();
-      const cannonX = width / 2;
-      ctx.fillStyle = '#00f3ff';
-      ctx.shadowColor = '#00f3ff';
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.arc(cannonX, groundY, 16, Math.PI, 0, false);
-      ctx.fill();
-      ctx.restore();
-
-      // Ground Line / Barrier
-      ctx.save();
-      ctx.strokeStyle = '#00f3ff';
-      ctx.lineWidth = 4;
-      ctx.shadowColor = '#00f3ff';
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.moveTo(0, groundY);
-      ctx.lineTo(width, groundY);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    /* ==========================================================================
-       MAIN GAME LOOP
-       ========================================================================== */
-    function gameLoop() {
-      ctx.clearRect(0, 0, width, height);
-
-      drawBackground();
-      drawCitySkyline();
-
-      if (gameState === 'PLAYING') {
-        // Handle Letter Spawning
-        spawnTimer++;
-        if (spawnTimer >= spawnInterval) {
-          spawnTimer = 0;
-          fallingLetters.push(new FallingLetter());
-        }
-
-        const groundY = height - 70;
-
-        // Update & Render Falling Letters
-        for (let i = fallingLetters.length - 1; i >= 0; i--) {
-          const letter = fallingLetters[i];
-          letter.update();
-          letter.draw();
-
-          // Check if letter hits city skyline ground
-          if (letter.y + letter.radius >= groundY - 20) {
-            damageCity(letter.x, groundY);
-            fallingLetters.splice(i, 1);
-          }
-        }
-
-        // Update & Render Energy Bolts
-        for (let i = energyBolts.length - 1; i >= 0; i--) {
-          const bolt = energyBolts[i];
-          bolt.update();
-          bolt.draw();
-
-          if (bolt.reached) {
-            createExplosion(bolt.targetX, bolt.targetY, '#00f3ff');
-
-            // Remove the targeted letter upon laser impact
-            if (bolt.targetLetter) {
-              const index = fallingLetters.indexOf(bolt.targetLetter);
-              if (index !== -1) {
-                fallingLetters.splice(index, 1);
-              }
-            }
-
-            energyBolts.splice(i, 1);
-          }
-        }
-
-        // Update & Render Explosion Particles
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.update();
-          p.draw();
-          if (p.life <= 0) particles.splice(i, 1);
-        }
-
-        // Update & Render Smoke Particles
-        for (let i = smokeParticles.length - 1; i >= 0; i--) {
-          const s = smokeParticles[i];
-          s.update();
-          s.draw();
-          if (s.life <= 0) smokeParticles.splice(i, 1);
-        }
-      }
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    /* ==========================================================================
-       GAME CONTROL LISTENERS & INIT
-       ========================================================================== */
-    audioToggle.addEventListener('click', () => {
-      const unmuted = sound.toggleMute();
-      audioToggle.textContent = unmuted ? '🔊 Audio: ON' : '🔇 Audio: OFF';
-    });
-
-    startBtn.addEventListener('click', () => {
-      sound.init();
-      startGame();
-    });
-
-    restartBtn.addEventListener('click', () => {
-      sound.init();
-      startGame();
-    });
-
-    function startGame() {
-      score = 0;
-      health = 100;
-      level = 1;
-      streak = 0;
-      maxStreak = 0;
-      destroyedCount = 0;
-      fallingLetters = [];
-      energyBolts = [];
-      particles = [];
-      smokeParticles = [];
-
-      updateHUD();
-      initBuildings();
-
-      startMenu.classList.add('hidden');
-      gameOverMenu.classList.add('hidden');
-      gameState = 'PLAYING';
-    }
-
-    function gameOver() {
-      gameState = 'GAMEOVER';
-      sound.playGameOver();
-
-      finalScoreEl.textContent = score;
-      finalDestroyedEl.textContent = destroyedCount;
-      finalStreakEl.textContent = maxStreak + 'x';
-
-      gameOverMenu.classList.remove('hidden');
-    }
-
-    function updateHUD() {
-      scoreDisplay.textContent = String(score).padStart(5, '0');
-      levelDisplay.textContent = `LVL ${level}`;
-      multiplierDisplay.textContent = `${Math.min(5, 1 + Math.floor(streak / 5))}x`;
-      healthBar.style.width = `${Math.max(0, health)}%`;
-
-      if (health < 30) {
-        healthBar.style.background = 'var(--primary-pink)';
-        healthBar.style.boxShadow = '0 0 15px var(--primary-pink)';
-      } else if (health < 60) {
-        healthBar.style.background = 'var(--primary-yellow)';
-        healthBar.style.boxShadow = '0 0 15px var(--primary-yellow)';
-      } else {
-        healthBar.style.background = 'linear-gradient(90deg, var(--primary-pink), var(--primary-yellow), var(--primary-green))';
-      }
-    }
-
-    // Initialize layout and start game loop
-    resizeCanvas();
-    requestAnimationFrame(gameLoop);
-  </script>
+  <!-- Game Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>
