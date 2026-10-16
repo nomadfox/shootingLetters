@@ -72,9 +72,15 @@ window.GAME_CONFIG = {
   // Lives Configuration
   initialLives: 3,
 
+  // Boss frequency: Boss spawns every 5 levels
+  bossLevelInterval: 5,
+
+  // Rest period duration in seconds when advancing levels
+  levelRestDuration: 2.5,
+
   // Boss Attack intervals (frames) - gets faster with level
   bossAttackInterval: function(bossLevel) {
-    return Math.max(40, 120 - (bossLevel - 1) * 15);
+    return Math.max(40, 120 - (Math.floor(bossLevel / 5) - 1) * 15);
   },
 
   // Letter Character Sets
