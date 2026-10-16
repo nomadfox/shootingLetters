@@ -72,10 +72,13 @@
   let nextLetterId = 1;
   let gridOffset = 0;
 
-  // Boss & Level Tracking
+  // Boss, Rest & Cinematic State Tracking
   let currentBoss = null;
   let spawnTimer = 0;
-  let lettersSinceLastBoss = 0;
+  let isResting = false;
+  let restTimer = 0;
+  let bossIntroTimer = 0;
+  let isBossLevel = false;
 
   // Entities
   let fallingLetters = [];
@@ -199,10 +202,12 @@
   class BossSpaceship {
     constructor(level) {
       this.level = level;
-      const phraseIndex = (level - 1) % config.bossPhrases.length;
+      const bossNum = Math.floor(level / config.bossLevelInterval);
+      const phraseIndex = (bossNum - 1) % config.bossPhrases.length;
       this.phrase = config.bossPhrases[phraseIndex];
       this.x = width / 2;
-      this.y = 130;
+      this.targetY = 130;
+      this.y = -120; // Start off-screen for cinematic entrance
       this.vx = 1.8;
       this.width = Math.max(320, this.phrase.length * 28 + 60);
       this.height = 70;
@@ -223,6 +228,7 @@
 
       this.dying = false;
       this.dead = false;
+      this.entering = true;
       this.vy = 0;
       this.attackTimer = 0;
     }
@@ -232,6 +238,16 @@
     }
 
     update() {
+      if (this.entering) {
+        // Smooth cinematic descent into battle position
+        this.y += (this.targetY - this.y) * 0.05;
+        if (Math.abs(this.y - this.targetY) < 2) {
+          this.y = this.targetY;
+          this.entering = false;
+        }
+        return;
+      }
+
       if (this.dying) {
         // Continuous explosions while frame flies away
         if (Math.random() < 0.6) {
@@ -253,7 +269,7 @@
         this.vx *= -1;
       }
 
-      // Boss shooting attacks
+      // Boss shooting attacks - ONLY source of letters on boss levels!
       this.attackTimer++;
       const interval = config.bossAttackInterval(this.level);
       if (this.attackTimer >= interval) {
@@ -510,9 +526,11 @@
     particles = [];
     smokeParticles = [];
     currentBoss = null;
-    lettersSinceLastBoss = 0;
+    isResting = false;
+    restTimer = 0;
 
     repairCity();
+    checkAndSetupLevel();
     gameState = 'PLAYING';
   }
 
@@ -573,7 +591,6 @@
     if (streak > maxStreak) maxStreak = streak;
     totalDestroyedCount++;
     levelDestroyedCount++;
-    lettersSinceLastBoss++;
 
     const multiplier = Math.min(5, 1 + Math.floor(streak / 5));
     score += 100 * multiplier;
@@ -582,26 +599,39 @@
       localStorage.setItem('cyber_highscore', highScore);
     }
 
-    // Check Boss Spawn condition (Every 5 letters destroyed)
-    if (lettersSinceLastBoss >= 5 && !currentBoss) {
-      lettersSinceLastBoss = 0;
-      currentBoss = new BossSpaceship(currentLevel);
-    }
-
-    // Check Level Complete condition
-    const quota = config.levelQuota(currentLevel);
-    if (levelDestroyedCount >= quota && (!currentBoss || currentBoss.dead)) {
-      advanceLevel();
+    // Check Level Complete condition (for normal non-boss levels)
+    if (!isBossLevel) {
+      const quota = config.levelQuota(currentLevel);
+      if (levelDestroyedCount >= quota) {
+        startLevelTransition();
+      }
     }
 
     updateHUD();
   }
 
+  function startLevelTransition() {
+    isResting = true;
+    restTimer = config.levelRestDuration * 60; // Convert to frames (~60fps)
+    repairCity();
+  }
+
+  function checkAndSetupLevel() {
+    isBossLevel = (currentLevel % config.bossLevelInterval === 0);
+    levelDestroyedCount = 0;
+    fallingLetters = [];
+
+    if (isBossLevel) {
+      currentBoss = new BossSpaceship(currentLevel);
+    } else {
+      currentBoss = null;
+    }
+  }
+
   function advanceLevel() {
     currentLevel++;
-    levelDestroyedCount = 0;
-    lettersSinceLastBoss = 0;
-    currentBoss = null;
+    isResting = false;
+    checkAndSetupLevel();
     repairCity();
     updateHUD();
   }
@@ -731,13 +761,47 @@
       const diff = getActiveDiff();
       const currentInterval = Math.max(35, diff.spawnInterval - (currentLevel - 1) * 10);
 
-      // Normal Letter Spawning (if no active boss or level quota not yet met)
-      const quota = config.levelQuota(currentLevel);
-      if (levelDestroyedCount < quota) {
-        spawnTimer++;
-        if (spawnTimer >= currentInterval) {
-          spawnTimer = 0;
-          fallingLetters.push(new FallingLetter());
+      // Level transition rest period logic
+      if (isResting) {
+        restTimer--;
+        ctx.save();
+        const theme = config.themes[currentThemeKey] || config.themes.cyberpunk;
+        ctx.font = 'bold 32px monospace';
+        ctx.fillStyle = theme.primaryColor;
+        ctx.shadowColor = theme.primaryColor;
+        ctx.shadowBlur = 15;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const nextLvl = currentLevel + 1;
+        const isNextBoss = (nextLvl % config.bossLevelInterval === 0);
+        if (isNextBoss) {
+          ctx.fillStyle = theme.secondaryColor;
+          ctx.shadowColor = theme.secondaryColor;
+          ctx.fillText(`LEVEL COMPLETE! WARNING: BOSS ENCOUNTER AHEAD...`, width / 2, height / 2 - 20);
+        } else {
+          ctx.fillText(`LEVEL ${currentLevel} CLEARED! PREPARING LEVEL ${nextLvl}...`, width / 2, height / 2 - 20);
+        }
+
+        ctx.font = '18px monospace';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`CITY SHIELD RESTORED`, width / 2, height / 2 + 20);
+        ctx.restore();
+
+        if (restTimer <= 0) {
+          advanceLevel();
+        }
+      } else {
+        // Normal Letter Spawning ONLY on non-boss levels
+        if (!isBossLevel) {
+          const quota = config.levelQuota(currentLevel);
+          if (levelDestroyedCount < quota) {
+            spawnTimer++;
+            if (spawnTimer >= currentInterval) {
+              spawnTimer = 0;
+              fallingLetters.push(new FallingLetter());
+            }
+          }
         }
       }
 
@@ -750,10 +814,7 @@
 
         if (currentBoss.dead) {
           currentBoss = null;
-          repairCity();
-          if (levelDestroyedCount >= quota) {
-            advanceLevel();
-          }
+          startLevelTransition();
         }
       }
 
@@ -827,14 +888,15 @@
     maxStreak = 0;
     levelDestroyedCount = 0;
     totalDestroyedCount = 0;
-    lettersSinceLastBoss = 0;
-    currentBoss = null;
+    isResting = false;
+    restTimer = 0;
 
     fallingLetters = [];
     energyBolts = [];
     particles = [];
     smokeParticles = [];
 
+    checkAndSetupLevel();
     updateHUD();
     initBuildings();
 
@@ -879,8 +941,14 @@
     livesDisplay.textContent = livesText || "NONE";
 
     // Progress UI Display
-    const quota = config.levelQuota(currentLevel);
-    progressDisplay.textContent = `${levelDestroyedCount}/${quota}`;
+    if (isBossLevel) {
+      const rem = currentBoss ? currentBoss.getRemainingCount() : 0;
+      const total = currentBoss ? currentBoss.phrase.length : 0;
+      progressDisplay.textContent = `BOSS (${total - rem}/${total})`;
+    } else {
+      const quota = config.levelQuota(currentLevel);
+      progressDisplay.textContent = `${levelDestroyedCount}/${quota}`;
+    }
 
     // Boss UI Banner Display
     if (currentBoss && !currentBoss.dying) {
