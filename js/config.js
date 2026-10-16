@@ -51,6 +51,32 @@ window.GAME_CONFIG = {
     hard: { name: "Hard (Nightmare)", baseSpeed: 1.8, spawnInterval: 80, damage: 18 }
   },
 
+  // Level Progression Quotas (Quota increases per level)
+  // Level 1: 15 letters, Level 2: 25 letters, Level 3: 35 letters, etc.
+  levelQuota: function(level) {
+    return 15 + (level - 1) * 10;
+  },
+
+  // Boss Spaceship Encryption Phrases / Sentences
+  bossPhrases: [
+    "CYBERSPACEDESTROYER",
+    "MEGABYTEOVERLORD",
+    "TERMINALCORRUPTION",
+    "QUANTUMANNIHILATION",
+    "SYSTEMDISRUPTIONGRID",
+    "ENCRYPTIONBREACHMASTER",
+    "SYNTHWAVEINTRUDERX",
+    "EXTERMINATEALLNETWORKS"
+  ],
+
+  // Lives Configuration
+  initialLives: 3,
+
+  // Boss Attack intervals (frames) - gets faster with level
+  bossAttackInterval: function(bossLevel) {
+    return Math.max(40, 120 - (bossLevel - 1) * 15);
+  },
+
   // Letter Character Sets
   characterSets: {
     alpha: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",

@@ -30,8 +30,18 @@
       </div>
 
       <div class="hud-box">
+        <div class="hud-label">Level Progress</div>
+        <div id="progress-display" class="hud-value">0/15</div>
+      </div>
+
+      <div class="hud-box">
         <div class="hud-label">Level / Speed</div>
         <div id="level-display" class="hud-value">LVL 1</div>
+      </div>
+
+      <div class="hud-box">
+        <div class="hud-label">Lives</div>
+        <div id="lives-display" class="hud-value">❤️ ❤️ ❤️</div>
       </div>
 
       <div class="hud-box">
@@ -47,6 +57,14 @@
       </div>
     </div>
 
+    <!-- Boss Health Banner -->
+    <div id="boss-banner" class="boss-banner-container hidden">
+      <div class="boss-title">⚠️ WARNING: ENEMY BOSS SPACESHIP DETECTED ⚠️</div>
+      <div class="boss-bar-outer">
+        <div id="boss-health-bar" class="boss-bar-inner"></div>
+      </div>
+    </div>
+
     <!-- Bottom Controls -->
     <div id="bottom-controls">
       <button id="pause-btn" class="hud-btn">⏸ Pause (ESC)</button>
@@ -57,7 +75,7 @@
     <div id="start-menu" class="overlay">
       <div class="panel">
         <h1>CYBER DEFENDER</h1>
-        <p>Alien encryption keys are falling onto the city neon skyline! Type the matching keys to fire plasma cannons before impact.</p>
+        <p>Alien encryption keys and giant BOSS SPACESHIPS are attacking the neon skyline! Type matching letters to fire plasma cannons. Destroy 5 letters to summon the boss ship, clear phrases to defeat it, and earn city shield repairs!</p>
         <div class="button-group">
           <button id="start-btn" class="btn">INITIALIZE DEFENSES</button>
           <button id="open-settings-btn" class="btn btn-secondary">CONFIG / THEMES</button>
@@ -107,6 +125,15 @@
       </div>
     </div>
 
+    <!-- Life Lost Overlay -->
+    <div id="life-lost-menu" class="overlay hidden">
+      <div class="panel">
+        <h2>DEFENSE LINE BREACHED</h2>
+        <p>City shield collapsed! 1 Life consumed. System holding baseline defenses...</p>
+        <button id="retry-level-btn" class="btn">RETRY CURRENT LEVEL</button>
+      </div>
+    </div>
+
     <!-- Pause Menu Overlay -->
     <div id="pause-menu" class="overlay hidden">
       <div class="panel">
@@ -122,8 +149,8 @@
     <!-- Game Over Menu Overlay -->
     <div id="game-over-menu" class="overlay hidden">
       <div class="panel">
-        <h2>DEFENSES BREACHED</h2>
-        <p>The skyline has fallen. Cyber grid compromised!</p>
+        <h2>SYSTEM OVERRIDE // GAME OVER</h2>
+        <p>All defense lives lost. The skyline has fallen!</p>
 
         <div class="stat-row">
           <div class="stat-item">
